@@ -57,10 +57,18 @@ def receiveOnePing(mySocket, ID, timeout, destAddr):
         if resp_type == 0:
             (req_time,) = struct.unpack('d', recPacket[28:36])
 
-        # Fill in end
-        timeLeft = timeLeft - howLongInSelect
-        if timeLeft <= 0:
-            return "Request timed out."
+            # Fill in end
+            timeLeft = timeLeft - howLongInSelect
+            if timeLeft <= 0:
+                return "Request timed out."
+            else:
+                return (timeReceived - req_time, None)
+        elif resp_type == 3:
+            return (0, unreachable_errors[resp_code])
+        elif resp_type == 11:
+            return (0, ttl_errors[resp_code])
+        else:
+            return (0, "Unknown ICMP type/code: (%d, %d)" % (resp_type, resp_code))
 
 
 def sendOnePing(mySocket, destAddr, ID):
