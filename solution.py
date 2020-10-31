@@ -48,27 +48,27 @@ def receiveOnePing(mySocket, ID, timeout, destAddr):
         recPacket, addr = mySocket.recvfrom(1024)
 
         # Fill in start
-
         # Fetch the ICMP header from the IP packet
-        ip_header = recPacket[0:20]
-        (resp_type, res_code, resp_checksum, resp_id, resp_seq) = struct.unpack('bbHHh', recPacket[20:28])
-        if not resp_id == ID:
-            continue
-        if resp_type == 0:
-            (req_time,) = struct.unpack('d', recPacket[28:36])
+        icmph = recPacket[20:28]
+        type, code, checksum, pID, sq = struct.unpack("bbHHh", icmph)
 
-            # Fill in end
-            timeLeft = timeLeft - howLongInSelect
-            if timeLeft <= 0:
-                return "Request timed out."
-            else:
-                return (timeReceived - req_time, None)
-        elif resp_type == 3:
-            return (0, unreachable_errors[resp_code])
-        elif resp_type == 11:
-            return (0, ttl_errors[resp_code])
-        else:
-            return (0, "Unknown ICMP type/code: (%d, %d)" % (resp_type, resp_code))
+        print
+        "ICMP Header: ", type, code, checksum, pID, sq
+        if pID == ID:
+            bytesinDbl = struct.calcsize("d")
+            timeSent = struct.unpack("d", recPacket[28:28 + bytesinDbl])[0]
+            rtt = timeReceived - timeSent
+
+            print
+            "Round-Trip Time: "
+            return rtt
+
+        # Fill in end
+
+        timeLeft = timeLeft - howLongInSelect
+        if timeLeft <= 0:
+            return "Request timed out."
+
 
 
 def sendOnePing(mySocket, destAddr, ID):
@@ -130,4 +130,4 @@ def ping(host, timeout=1):
     return vars
 
 if __name__ == '__main__':
-    ping("127.0.0.1")
+    ping("google.co.il")
