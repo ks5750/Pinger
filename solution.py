@@ -128,11 +128,15 @@ def ping(host, timeout=1):
         delay = doOnePing(dest, timeout)
         print(delay)
         inputs.append(delay)
-        print(inputs)
+        #print(inputs)
         time.sleep(1)  # one second
 
-    vars = [str(round(min(inputs), 2)), str(round(sum(inputs)/4, 2)), str(round(max(inputs), 2)),
-            str(round(statistics.stdev(inputs), 2))]
+    packet_min=min(inputs)
+    packet_avg=sum(inputs)/4
+    packet_max=max(inputs)
+    stdev_var=statistics.stdev(inputs)
+
+    vars = [str(round(packet_min, 2)), str(round(packet_avg, 2)), str(round(packet_max, 2)),str(round(stdev_var, 2))]
 
     #print(min(inputs))
     #print(max(inputs))
